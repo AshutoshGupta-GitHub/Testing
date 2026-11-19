@@ -1,0 +1,100 @@
+select * from emp;
+
+--Inline Statement Table value function.
+Create function findEmpbyName(@Name varchar(100))
+returns table
+as 
+return 
+	select * from emp where ename=@Name;
+
+select * from dbo.findEmpbyName ('Ashutosh');
+
+--FInding the netsal using Scalar f^ and Multi stat. F^ and SP
+--Creating scalar F^
+
+create OR ALTER function findPF(@salary decimal(9,2))
+returns decimal(9,2)
+as 
+begin 
+	declare @pfamt decimal (9,2);
+	set @pfamt = @salary * 0.1;
+	return @pfamt;
+end
+
+--Multi Statement F^
+Create OR ALTER function findEmp(@Name varchar(100), @salary decimal(9,2))
+returns @temptb table
+(names varchar(100), salary decimal(9,2), pfamt decimal(9,2), netsal decimal(9,2))
+as
+begin
+	insert into @temptb (names, salary,pfamt) values (@Name, @salary, dbo.findPF(@salary));
+	declare @netsal decimal(9,2);
+	set @netsal = @salary - dbo.findPF(@salary);
+	update @temptb set netsal = @netsal;
+	return
+end
+
+--Creating SP
+Create OR ALTER proc SP_saveEmp
+@Salary decimal(9,2),
+@Name varchar(100)
+as
+begin
+	DECLARE @nextEid INT;
+    SELECT @nextEid = ISNULL(MAX(eid), 0) + 1 FROM emp;
+
+	insert into emp(ename,esalary, pf,netsal) 
+	select @nextEid, names, salary,pfamt,netsal 
+	dfrom dbo.findEmp(@Name,@salary);
+end
+
+--Now calling the main SP
+
+exec SP_saveEmp 1000, 'Ashutosh'
+
+--Altering the PF and netsal column
+Alter table emp
+add pf decimal(9,2),
+	netsal decimal(9,2);
+
+select * from emp;
+
+--Triggers
+
+create trigger Afterinserttrigger
+on emp
+after insert
+as
+begin
+	print 'Emp added successfuly';
+end
+
+insert into emp values ('Sanjay', 50000, 'sales', 2026-11-19, 200, 2400);
+
+INSERT INTO emp (eid, ename, esalary, dept, DOJ, pf, netsal)
+VALUES (6, 'Neha', 25000, 'IT', '2026-11-19', 200, 24800);
+
+update emp set pf = 500 where eid = 2;
+select * from emp;
+
+select * into emplogs from emp;
+ALTER table emplogs
+add DateNTime varchar(100),
+	ModifyBY varchar (100)
+	
+select * from emplogs;
+
+create OR ALTER trigger trytrigger
+on emp
+after insert
+as 
+begin
+	insert into emplogs (DateNTime, ModifyBy) 
+	select getDate(), 'Admin' from emp;
+end
+insert into emp( eid, ename,esalary,dept, DOJ, pf, netsal) values (7,'Sujal',10000,'sales',2026-11-19, 200, 25000)
+select * from emp;
+
+select * from emplogs;
+
+

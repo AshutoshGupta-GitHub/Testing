@@ -1,0 +1,64 @@
+create database novbatch2026;
+
+use novbatch2026;
+
+create table emp(
+	eid int primary key,
+	ename varchar(100),
+	esalary decimal,
+	dept varchar(100)
+);
+INSERT INTO emp VALUES ( 1,'Ashutosh', 10000, 'IT');
+INSERT INTO emp VALUES ( 2,'Sidhant', 20000, 'IT');
+INSERT INTO emp VALUES ( 3,'Mani', 30000, 'IT');
+INSERT INTO emp VALUES ( 4,'Rohit', 40000, 'IT');
+
+select * from emp;
+
+
+select * into newemp from emp;
+
+select * from newemp;
+
+select * into colemp from emp where 1 = 0;
+
+select * from colemp;
+
+select top 1 * from emp where esalary in (select top 2 esalary from emp order by esalary desc) order by esalary desc;
+
+select * from emp;
+
+update emp set dept = 'HR' where eid = 3
+update emp set dept = 'sales' where eid = 4
+
+select dept, count('id') as empcnt from emp group by dept;
+
+select dept, sum(esalary) as sal from emp group by dept;
+
+select * from emp group by eid;
+
+select * from emp group by eid having count(*) > 1;
+
+select top 1 dept, max(esalary) as deptSal from emp group by dept order by deptSal desc;
+
+select top 1 dept, max(esalary) as sal from emp group by dept order by dept desc;
+
+SELECT ename, COUNT(*) AS duplicate_count
+FROM emp
+GROUP BY ename
+HAVING COUNT(*) > 1;
+
+ALTER table emp 
+ADD DOJ date;
+
+select * from emp;
+
+update emp set DOJ = '2026-01-10' where eid = 1;
+update emp set DOJ = '2026-02-16' where eid = 2;
+update emp set DOJ = '2026-10-10' where eid = 3;
+update emp set DOJ = '2026-11-10' where eid = 4;
+
+
+select * from emp;
+
+select * from emp where DOJ between '2026-01-01' AND '2026-10-31';
