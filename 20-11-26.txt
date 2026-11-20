@@ -1,0 +1,86 @@
+use novbatch2026
+
+Create table emps2(
+	id int identity(1,1) primary key,
+	name varchar(100),
+	salary decimal(9,2)
+);
+
+insert into emps2 values('Ashutosh', 10000);
+insert into emps2 values('Issac', 20000);
+insert into emps2 values('Jacob', 30000);
+
+select * from emps;
+
+-- creating the before trigger
+Create trigger BeforeInsertTrigger
+on emps
+instead of insert
+as
+begin
+	declare @sal decimal(9,2);
+	select @sal = salary from inserted;
+	if(@sal < 10000)
+	begin
+		print 'Salary should be more than 10000'
+	end
+	else
+	begin
+		insert into emps(name, salary) values(null, @sal);
+	end
+end
+
+--checking the trigger 
+insert into emps values('Sumit', 5000);
+
+
+select * from emps;
+
+--Cheking if name is present then don't insert if is it not then insert,
+Create OR ALTER trigger BeforeTriggerInsert
+on emps2
+instead of insert
+as
+begin
+	declare @newname varchar(100);
+	select @newname = name from emps2 where name=@newname;
+  
+	declare @cnt int;
+	--select @name = name from inserted
+	--where @name = name;
+	select @cnt=count(name) from inserted Group by name;
+	
+	if(@cnt > 1)
+	begin
+		print 'Name is already present Duplicate Value!! insert Unique one';
+	end
+	else
+	begin
+		insert into emps2(name, salary) select name,salary from inserted;
+	end
+end
+
+insert into emps2 values('Ashutosh', 1000);
+
+select * from emps2;
+
+
+drop trigger BeforeTriggerInsert;
+
+truncate table emps2;
+
+--DDL trigger it's apply only on after tigger.
+CREATE TRIGGER trg_FirstCreateTable
+ON DATABASE
+FOR CREATE_TABLE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    PRINT 'A new table was created in this database!';
+END;
+GO
+
+CREATE TABLE dbo.TestUsers (
+    Id INT PRIMARY KEY,
+    UserName NVARCHAR(50)
+);
